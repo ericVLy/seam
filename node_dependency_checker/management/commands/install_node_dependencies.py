@@ -1,15 +1,16 @@
+# pylint: disable=C0103
 # node_dependency_checker/management/commands/install_node_dependencies.py
 import os
 import logging
 import subprocess
-from django.conf import settings
+# from django.conf import settings
 from django.core.management.base import BaseCommand
 
 
 currentPath = os.path.split(os.path.realpath(__file__))[0]
 projectRootPath = os.path.abspath(os.path.join(currentPath, '..', '..', '..'))
 
-static_path = os.path.join(projectRootPath, 'personal_matters', 'static')
+static_path = os.path.join(projectRootPath, 'qr_yx_dy_eam', 'static')
 vendor_static_path = os.path.join(static_path, "vendor")
 
 
@@ -30,7 +31,7 @@ class Command(BaseCommand):
             npm_mirror = os.environ.get("npm_mirror", None)
             if npm_mirror is not None:
                 log.info(f"npm_mirror: {npm_mirror}")
-                subprocess.run(f'npm config set registry {npm_mirror}', shell=True)
+                subprocess.run(f'npm config set registry {npm_mirror}', shell=True, check=False)
             log.info(static_path)
             subprocess.run('npm install', shell=True, check=True, cwd=static_path)
             log.info('Node.js dependencies installed successfully.')
@@ -42,7 +43,7 @@ class Command(BaseCommand):
                     os.makedirs(vendor_static_path)
                 else:
                     shutil.rmtree(vendor_static_path)
-                for package_name, pgk_ver in packages.items():
+                for package_name, _ in packages.items():
                     package_path = os.path.join(static_path, "node_modules", str(package_name))
                     if str(package_name).startswith("@"):
                         package_name = str(package_name).split("@")[1]  # type: str
@@ -54,10 +55,10 @@ class Command(BaseCommand):
                 shutil.rmtree(os.path.join(static_path, "node_modules"))
 
 
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             log.error('Node.js is not installed. Please install Node.js and npm first.')
-            raise FileNotFoundError('Node.js is not installed. Please install Node.js and npm first.')
+            raise FileNotFoundError('Node.js is not installed. Please install Node.js and npm first.') from e
 
         except subprocess.CalledProcessError as e:
-            log.error('An error occurred while installing Node.js dependencies:', e)
+            log.error('An error occurred while installing Node.js dependencies: %s', e)
             raise e

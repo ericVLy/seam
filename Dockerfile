@@ -64,4 +64,4 @@ CMD set -xe; \
 nginx -c /home/wagtail/nginx/nginx.conf;\
 python manage.py makemigrations --noinput; \
 python manage.py migrate --noinput; \
-gunicorn personal_matters.wsgi:application
+gunicorn qr_yx_dy_eam.wsgi:application

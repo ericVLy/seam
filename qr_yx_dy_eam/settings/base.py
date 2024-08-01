@@ -26,6 +26,7 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 INSTALLED_APPS = [
     "home",
     "node_dependency_checker",
+    "eam",
     "search",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
@@ -161,7 +162,7 @@ STORAGES = {
 # Wagtail settings
 
 WAGTAIL_SITE_NAME = "qr_yx_dy_eam"
-
+WAGTAIL_FRONTEND_LOGIN_TEMPLATE = 'eam/login.html'
 # Search
 # https://docs.wagtail.org/en/stable/topics/search/backends.html
 WAGTAILSEARCH_BACKENDS = {

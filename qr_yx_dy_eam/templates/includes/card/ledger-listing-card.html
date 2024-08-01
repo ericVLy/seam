@@ -1,0 +1,28 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="ledger-listing-card">
+    <a class="ledger-listing-card__link" href="{% pageurl ledger %}">
+        {% if ledger.image %}
+            <figure class="ledger-listing-card__image">
+                {% picture ledger.image format-{avif,webp,jpeg} fill-322x247-c100 loading="lazy" %}
+            </figure>
+        {% endif %}
+        <div class="ledger-listing-card__contents">
+            <h2 class="ledger-listing-card__title">{{ ledger.title }}</h2>
+            {% if ledger.introduction %}
+                <p class="ledger-listing-card__introduction">{{ ledger.introduction|truncatewords:15 }}</p>
+            {% endif %}
+            <p class="ledger-listing-card__metadata">
+                {% if ledger.date_published %}
+                    {{ ledger.date_published }} by
+                {% endif %}
+                {% for author in ledger.authors %}
+                    {{ author }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+        </div>
+    </a>
+</div>
+
+
+

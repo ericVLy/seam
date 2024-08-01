@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% load wagtailimages_tags %}
+{% load i18n static %}
+
+
+{% block content %}
+{% include "base/include/header-index.html" %}
+<div class="" id="load_parent"><div class="" id="id_loader">
+    <div class="side"></div>
+    <div class="side"></div>
+    <div class="side"></div>
+    <div class="side"></div>
+    <div class="side"></div>
+    <div class="side"></div>
+    <div class="side"></div>
+    <div class="side"></div>
+  </div>
+  <div id="id_anime_process"></div>
+  </div>
+<div class="container">
+    <table id="id_asset_table">
+
+    </table>
+</div>
+
+
+<div class="container">
+    <table id="id_changing_table"></table>
+</div>
+
+
+{% endblock content %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/loader_side.css' %}">
+<link rel="stylesheet" href="{% static 'node_modules/bootstrap/dist/css/bootstrap.css' %}">
+<link rel="stylesheet" href="{% static 'node_modules/bootstrap-table/dist/bootstrap-table.css' %}">
+{% endblock extra_css %}
+{% block extra_js %}
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+</script>
+<script src="{% static 'node_modules/jquery/dist/jquery.js' %}" type="module"></script>
+<script src="{% static 'node_modules/bootstrap/dist/js/bootstrap.js' %}" type="module"></script>
+<script src="{% static 'node_modules/bootstrap-table/dist/bootstrap-table.js' %}" type="module"></script>
+
+<script>
+
+    async function init_tables(){
+        $('#id_changing_table').bootstrapTable('destroy')
+        $('#id_asset_table').bootstrapTable('destroy')
+    let asset_table_column = [
+        // {
+        //     field: 'state',
+        //     checkbox: true,
+        //     align: 'center',
+        //     valign: 'middle'
+        // }
+    ]
+    let changing_table_column = []
+        // get user id and name
+        await $.ajax({
+            url: 'eam_asset/getuser',
+            type: "POST",
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            dataType:"json",
+            xhrFields: {
+            withCredentials: true
+            },
+            error: function() {
+                console.error('AJAX请求错误');
+                return ret
+            },
+            success: function (response) {
+                var operateFormatter = function (value, row, index) {
+                    let ret = [
+                        '<select class="form-control change_user_select">',
+                        '<option value="">---</option>',
+                        ]
+                    response["users"]
+                    response["users"].forEach(user => {
+                        ret.push('<option value="'+user["user_id"]+'">'+user["user_name"]+'</option>')
+                    });
+                    ret.push('</select>')
+                    return ret.join('');
+                }
+
+                // get asset info
+                $.ajax({
+                    url: 'eam_asset/eamuser',
+                    type: "POST",headers: {'X-CSRFToken': getCookie('csrftoken')},dataType:"json",
+                    xhrFields: {
+                    withCredentials: true
+                    },
+                    success: function(response) {
+                    let current_user_name = response['current_user_name'];
+                    let current_user_response = response['current_user_response'];
+                    if (current_user_name.length) {
+                        let asset_table_column_name = Object.keys(current_user_name[0])
+                        asset_table_column_name.forEach(column_name => {
+                            if (column_name!="id") {
+                                asset_table_column.push(
+                                    {
+                                        field: column_name,
+                                        title: response["field_dic"][column_name],
+                                        align: 'center',
+                                    }
+                                )
+                            }
+
+                        });
+                        asset_table_column.push(
+                            {
+                                field: "move",
+                                title: "转交",
+                                align: "center",
+                                valign: 'middle',
+                                events: window.operateEvents,
+                                formatter: operateFormatter
+                            }
+                        )
+                        $('#id_asset_table').bootstrapTable('destroy').bootstrapTable({
+                            columns:[asset_table_column],
+                            height: 200,
+                            data: current_user_name,
+                            });
+
+
+                    };
+
+                    if (current_user_response.length) {
+                        let changing_table_column_name = Object.keys(current_user_response[0])
+                        changing_table_column_name.forEach(column_name=> {
+                            if (column_name!="id") {
+                                    changing_table_column.push(
+                                    {
+                                        field: column_name,
+                                        title: response["field_dic"][column_name],
+                                        align: 'center',
+                                    }
+                                );
+                            }
+                        });
+                    var optionFormatter = function (value, row, index) {
+                                let ret = [
+                                    '<button type="button" class="btn btn-success accept-button">接收</button>',
+                                    '<button type="button" class="btn btn-danger refuse-button">拒绝</button>',
+                                    ]
+                                return ret.join('');
+                            }
+                        changing_table_column.push(
+                            {
+                                field: "options",
+                                title: "操作",
+                                align: "center",
+                                valign: 'middle',
+                                events: window.operateEvents,
+                                formatter: optionFormatter,
+                            }
+                        )
+                        $('#id_changing_table').bootstrapTable('destroy').bootstrapTable({
+                            columns:[changing_table_column],
+                            height: 200,
+                            data: current_user_response,
+                            });
+                    };
+                    
+                    },
+                    error: function() {
+                    console.error('AJAX请求错误');
+                    }
+                });
+            }
+        })
+    }
+
+    window.operateEvents = {
+        'change .change_user_select': function (e, value, row, index) {
+            if (e.target.value) {
+                console.log(row["sn"])
+                console.log(e.target.selectedIndex)
+                $.ajax({
+                        url: 'eam_asset/eamchange',
+                        type: "POST",
+                        headers: {'X-CSRFToken': getCookie('csrftoken')},
+                        dataType:"json",
+                        data: JSON.stringify({"sn": row["sn"], "move_to": e.target.selectedIndex}),
+                        xhrFields: {
+                        withCredentials: true
+                        },
+                        beforeSend: function(xhr) {
+                            document.getElementById("load_parent").setAttribute("class", "loading-overlay");
+                            document.getElementById("id_loader").setAttribute("class", "loader");
+                        },
+                        success: function(data) {
+                            // 请求成功后执行的操作
+                            console.log(data);
+                        },
+                        complete: function(XMLrequest, textstatus) {
+                            document.getElementById("id_loader").setAttribute("class", "");
+                            document.getElementById("load_parent").setAttribute("class", "")
+                            // location.reload();
+                            init_tables();
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown){  
+                            alert(XMLHttpRequest.readyState + XMLHttpRequest.status + XMLHttpRequest.responseText);  
+                        }
+                    })
+            }
+
+        },
+        "click .refuse-button": function(e, value, row, index) {
+            console.log(row["sn"])
+            $.ajax({
+                url: 'eam_asset/eamrefuse',
+                type: "POST",
+                headers: {'X-CSRFToken': getCookie('csrftoken')},
+                dataType:"json",
+                data: JSON.stringify({"sn": row["sn"]}),
+                xhrFields: {
+                withCredentials: true
+                },
+                beforeSend: function(xhr) {
+                    document.getElementById("load_parent").setAttribute("class", "loading-overlay");
+                    document.getElementById("id_loader").setAttribute("class", "loader");
+                },
+                success: function(data) {
+                    // 请求成功后执行的操作
+                    console.log(data);
+                },
+                complete: function(XMLrequest, textstatus) {
+                    document.getElementById("id_loader").setAttribute("class", "");
+                    document.getElementById("load_parent").setAttribute("class", "")
+                    // location.reload();
+                    init_tables();
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown){  
+                    alert(XMLHttpRequest.readyState + XMLHttpRequest.status + XMLHttpRequest.responseText);  
+                }
+            })
+        },
+        "click .accept-button": function(e, value, row, index) {
+            $.ajax({
+                url: 'eam_asset/eamcommit',
+                type: "POST",
+                headers: {'X-CSRFToken': getCookie('csrftoken')},
+                dataType:"json",
+                data: JSON.stringify({"sn": row["sn"]}),
+                xhrFields: {
+                withCredentials: true
+                },
+                beforeSend: function(xhr) {
+                    document.getElementById("load_parent").setAttribute("class", "loading-overlay");
+                    document.getElementById("id_loader").setAttribute("class", "loader");
+                },
+                success: function(data) {
+                    // 请求成功后执行的操作
+                    console.log(data);
+                },
+                complete: function(XMLrequest, textstatus) {
+                    document.getElementById("id_loader").setAttribute("class", "");
+                    document.getElementById("load_parent").setAttribute("class", "")
+                    // location.reload();
+                    init_tables();
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown){  
+                    alert(XMLHttpRequest.readyState + XMLHttpRequest.status + XMLHttpRequest.responseText);  
+                }
+            })
+        }
+    }
+    window.onload=init_tables
+    
+</script>
+{% endblock extra_js %}
