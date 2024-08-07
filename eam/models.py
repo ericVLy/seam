@@ -1,3 +1,4 @@
+# pylint: disable=R0901
 from django.utils import timezone
 # from django.contrib import messages
 from django.db import models
@@ -84,7 +85,7 @@ class Asset(
     # locale = ''
 
     panels = [
-        
+
         FieldPanel("name"),
         FieldPanel("update_time"),
         FieldPanel("sn"),

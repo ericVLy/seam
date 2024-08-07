@@ -1,3 +1,4 @@
+# pylint: disable=C0412
 from django.conf import settings
 from django.urls import include, path
 from django.contrib import admin

@@ -1,3 +1,4 @@
+# pylint: disable-all
 from django.db import migrations, models
 
 

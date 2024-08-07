@@ -1,3 +1,4 @@
+# pylint: disable=R0901,protected-access
 # from django.shortcuts import render
 import json
 import logging
@@ -84,7 +85,7 @@ class EamChangeView(LoginRequiredMixin, generic.UpdateView):
         if current_value[0]["user"] == request.user.id:
             log.info("update table")
             current.update(on_move=True, move_to=move_to)
-            return JsonResponse(self.model.objects.filter(sn=data["sn"]).values("id", 
+            return JsonResponse(self.model.objects.filter(sn=data["sn"]).values("id",
                                                                                 "name", 
                                                                                 "sn", 
                                                                                 "user__username", 
@@ -108,7 +109,7 @@ class EamCommitView(LoginRequiredMixin, generic.UpdateView):
         current_value = current.values("id", "name", "sn", "user", "on_move", "move_to", "status")[0]
         if current_value["move_to"] == request.user.id and current_value["on_move"]:
             current.update(on_move=False, user=request.user)
-            return JsonResponse(self.model.objects.filter(sn=data["sn"]).values("id", 
+            return JsonResponse(self.model.objects.filter(sn=data["sn"]).values("id",
                                                                                 "name", 
                                                                                 "sn", 
                                                                                 "user__username", 

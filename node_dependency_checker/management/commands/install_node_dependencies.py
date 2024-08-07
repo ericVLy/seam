@@ -1,4 +1,4 @@
-# pylint: disable=C0103
+# pylint: disable=C0103,C0415
 # node_dependency_checker/management/commands/install_node_dependencies.py
 import os
 import logging
