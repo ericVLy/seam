@@ -170,3 +170,9 @@ cython_debug/
 # node
 node_modules/
 vendor/
+
+# product
+/static/
+/qr_yx_dy_eam/settings/local.py
+
+
