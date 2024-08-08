@@ -23,6 +23,7 @@ coverage
 .python-version
 
 # Distribution / packaging
+venv/
 .Python
 env/
 build/
