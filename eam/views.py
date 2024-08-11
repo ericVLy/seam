@@ -51,8 +51,8 @@ class EamUserView(LoginRequiredMixin, generic.FormView):
         if not request.user.is_authenticated:
             print("unauthenticated request")
             return HttpResponseForbidden()
-        current_user_name = self.model.objects.filter(user=request.user).values("id", "name", "sn", "user__username", "on_move","status")
-        current_user_response = self.model.objects.filter(move_to=request.user, on_move=True).values("id", "name", "sn", "move_to__username", "on_move","status")
+        current_user_name = self.model.objects.filter(user=request.user).values("id", "name", "sn", "description", "user__username", "on_move","status")
+        current_user_response = self.model.objects.filter(move_to=request.user, on_move=True).values("id", "name", "sn", "description", "move_to__username", "on_move","status")
         verbose_name = self.getmodelfield()
         verbose_name["user__username"] = verbose_name["user"]
         verbose_name["move_to__username"] = verbose_name["move_to"]

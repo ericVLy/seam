@@ -80,6 +80,7 @@ class Asset(
         verbose_name=_("资产状态"))
 
     repair_count = models.IntegerField(default=0, verbose_name=_("维修次数"))
+    comment = models.TextField(verbose_name=_("备注"), blank=True)
 
     # translation_key = ''
     # locale = ''
@@ -98,6 +99,7 @@ class Asset(
         FieldPanel("move_to"),
         FieldPanel("status"),
         FieldPanel("repair_count"),
+        FieldPanel("comment"),
         PublishingPanel(),
     ]
 
