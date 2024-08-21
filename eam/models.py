@@ -70,6 +70,8 @@ class Asset(
     purchase_date = models.DateField(verbose_name=_("采购日期"), default=timezone.now())
     purchase_prise = models.DecimalField(default=0, decimal_places=2, verbose_name=_("采购价格"), max_digits=64)
     warranty_period = models.DateField(verbose_name=_("质保期"), default=timezone.now()+timezone.timedelta(days=365))
+    consumables = models.BooleanField(default=False, verbose_name=_("消耗品"))
+    consumables_base_num = models.IntegerField(default=0, verbose_name=_("消耗品基数"))
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='asset_user', verbose_name=_("用户"))
     on_move = models.BooleanField(default=False, verbose_name=_("转交中"))
     move_to = models.OneToOneField(User, on_delete=models.CASCADE, related_name='moving_user', verbose_name=_("转交"))
@@ -79,7 +81,7 @@ class Asset(
         default='normal',
         verbose_name=_("资产状态"))
 
-    repair_count = models.IntegerField(default=0, verbose_name=_("维修次数"))
+    repair_count = models.IntegerField(default=0, verbose_name=_("维修次数/损耗量"))
     comment = models.TextField(verbose_name=_("备注"), blank=True)
 
     # translation_key = ''
@@ -94,6 +96,8 @@ class Asset(
         FieldPanel("purchase_date"),
         FieldPanel("purchase_prise"),
         FieldPanel("warranty_period"),
+        FieldPanel("consumables"),  # consumables
+        FieldPanel("consumables_base_num"),
         FieldPanel("user"),
         FieldPanel("on_move"),
         FieldPanel("move_to"),
